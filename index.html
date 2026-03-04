@@ -41,12 +41,23 @@
       orbitRadius: 30,
       orbitJitter: 0.85,
       cardAttractRadius: 280,
-      cardAttractStrength: 0.048,
-      cardSpread: 0.5,
+      cardAttractStrength: 0.006,
+      cardSpread: 0.2,
       baseDotAlpha: 0.1,
       swarmDotAlpha: 0.89,
       glowAlpha: 0.18,
     };
+
+    // Category colors (dark mode RGB values matching CATEGORY_COLORS)
+    const CAT_COLORS = {
+      "Planning":        [0, 232, 123],
+      "Governance":      [167, 139, 250],
+      "Design System":   [255, 107, 157],
+      "Content":         [255, 194, 51],
+      "Performance":     [0, 212, 255],
+      "Troubleshooting": [255, 99, 71],
+    };
+    const DEFAULT_COLOR = [255, 255, 255];
 
     let W, H, dots = [];
     let mouse = { x: -9999, y: -9999, active: false };
@@ -71,6 +82,9 @@
             homeX, homeY, x: homeX, y: homeY, vx: 0, vy: 0,
             orbitAngle: Math.random() * Math.PI * 2,
             orbitSpeed: 0.005 + Math.random() * 0.015,
+            // Color blending: track current RGB and blend target
+            cr: 255, cg: 255, cb: 255,
+            tr: 255, tg: 255, tb: 255,
           });
         }
       }
@@ -81,10 +95,13 @@
       document.querySelectorAll('.card-glow-wrap').forEach(card => {
         if (card.matches(':hover')) {
           const rect = card.getBoundingClientRect();
+          const cat = card.getAttribute('data-category') || '';
+          const rgb = CAT_COLORS[cat] || DEFAULT_COLOR;
           cards.push({
             cx: rect.left + rect.width / 2,
             cy: rect.top + rect.height / 2,
             w: rect.width, h: rect.height,
+            r: rgb[0], g: rgb[1], b: rgb[2],
           });
         }
       });
@@ -97,6 +114,8 @@
         const dot = dots[i];
         dot.orbitAngle += dot.orbitSpeed;
         let attracted = false;
+        let cardInfluence = 0;
+        let cardR = 255, cardG = 255, cardB = 255;
 
         if (mouse.active) {
           const dx = mouse.x - dot.homeX;
@@ -124,8 +143,26 @@
             dot.vx += (card.cx + sx - dot.x) * CONFIG.cardAttractStrength * eased;
             dot.vy += (card.cy + sy - dot.y) * CONFIG.cardAttractStrength * eased;
             attracted = true;
+            // Track strongest card influence for color
+            if (eased > cardInfluence) {
+              cardInfluence = eased;
+              cardR = card.r; cardG = card.g; cardB = card.b;
+            }
           }
         }
+
+        // Set color target: blend toward card color based on influence
+        if (cardInfluence > 0) {
+          dot.tr = cardR; dot.tg = cardG; dot.tb = cardB;
+        } else {
+          dot.tr = 255; dot.tg = 255; dot.tb = 255;
+        }
+
+        // Smooth color blending
+        const colorSpeed = 0.08;
+        dot.cr += (dot.tr - dot.cr) * colorSpeed;
+        dot.cg += (dot.tg - dot.cg) * colorSpeed;
+        dot.cb += (dot.tb - dot.cb) * colorSpeed;
 
         const retMul = attracted ? 0.15 : 1;
         dot.vx += (dot.homeX - dot.x) * CONFIG.returnStrength * retMul;
@@ -148,15 +185,19 @@
         const alpha = CONFIG.baseDotAlpha + (CONFIG.swarmDotAlpha - CONFIG.baseDotAlpha) * t;
         const radius = CONFIG.dotRadius + t * 0.8;
 
+        const r = Math.round(dot.cr);
+        const g = Math.round(dot.cg);
+        const b = Math.round(dot.cb);
+
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+        ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
         ctx.fill();
 
         if (t > 0.4) {
           ctx.beginPath();
           ctx.arc(dot.x, dot.y, radius + 2, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255,255,255,' + (CONFIG.glowAlpha * (t - 0.4)) + ')';
+          ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + (CONFIG.glowAlpha * (t - 0.4)) + ')';
           ctx.fill();
         }
       }
@@ -836,6 +877,7 @@ function PromptCard({ prompt, index }) {
   return (
     <div
       className={`card-glow-wrap${glowActive ? " glow-active" : ""}`}
+      data-category={prompt.category}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={() => setIsFocused(true)}
