@@ -68,22 +68,6 @@ const PROMPT_DATA = [
     category: "Design System",
   },
   {
-    id: "p-09",
-    title: "Shadcn Setup",
-    description: "Get started with shadcn/ui, themed to your project.",
-    template:
-      "Set up shadcn/ui in [PROJECT_NAME]. Configure it to use [STYLE] style with [BASE_COLOR] as the primary color. Install these base components: [COMPONENT_LIST]. Set up theming with CSS variables that reference my existing design tokens if available. Walk me through each step.",
-    category: "Design System",
-  },
-  {
-    id: "p-10",
-    title: "Build with Code Connect",
-    description: "Use real design system components via Figma Code Connect. Requires Code Connect to be set up already.",
-    template:
-      "Build [FEATURE_OR_COMPONENT] using the design system components available through Code Connect. Reference the connected components in [FIGMA_FILE_OR_LIBRARY] and use their props as documented. Do not create custom components for anything that already exists in the system. If a component is missing, flag it and suggest a workaround.",
-    category: "Design System",
-  },
-  {
     id: "p-11",
     title: "Motion Spec",
     description: "Define animation behavior with easing, timing, and fallbacks.",
@@ -143,13 +127,15 @@ const PROMPT_DATA = [
 
 const CATEGORIES = ["All", "Planning", "Governance", "Design System", "Content", "Performance", "Troubleshooting"];
 
+const PURPLE = { light: "#6d4fc4", dark: "#a78bfa", darkMuted: "rgba(167,139,250,0.65)", darkBg: "rgba(167,139,250,0.08)", darkHi: "rgba(200,185,255,0.7)" };
+
 const CATEGORY_COLORS = {
-  Planning:        { light: "#0a7a42", dark: "#00e87b", darkMuted: "rgba(0,232,123,0.65)", darkBg: "rgba(0,232,123,0.08)", darkHi: "rgba(140,255,200,0.7)" },
-  Governance:      { light: "#6d4fc4", dark: "#a78bfa", darkMuted: "rgba(167,139,250,0.65)", darkBg: "rgba(167,139,250,0.08)", darkHi: "rgba(200,185,255,0.7)" },
-  "Design System": { light: "#c4295c", dark: "#ff6b9d", darkMuted: "rgba(255,107,157,0.65)", darkBg: "rgba(255,107,157,0.08)", darkHi: "rgba(255,170,200,0.7)" },
-  Content:         { light: "#a67a10", dark: "#ffc233", darkMuted: "rgba(255,194,51,0.65)", darkBg: "rgba(255,194,51,0.08)", darkHi: "rgba(255,225,140,0.7)" },
-  Performance:     { light: "#0a7e99", dark: "#00d4ff", darkMuted: "rgba(0,212,255,0.65)", darkBg: "rgba(0,212,255,0.08)", darkHi: "rgba(140,230,255,0.7)" },
-  Troubleshooting: { light: "#b83a2a", dark: "#ff6347", darkMuted: "rgba(255,99,71,0.65)", darkBg: "rgba(255,99,71,0.08)", darkHi: "rgba(255,170,150,0.7)" },
+  Planning:        PURPLE,
+  Governance:      PURPLE,
+  "Design System": PURPLE,
+  Content:         PURPLE,
+  Performance:     PURPLE,
+  Troubleshooting: PURPLE,
 };
 
 
